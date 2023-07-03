@@ -36,35 +36,31 @@ El AgenteMonitor trabaja con otros agentes especializados, como los AgentesRató
 
 ```mermaid
 sequenceDiagram
-    participant AgenteMonitor
-    participant AgenteRaton
-    participant AgenteLaberinto
+    participant AgenteMonitor as Monitor
+    participant AgenteRaton as Raton
+    participant AgenteLaberinto as Laberinto
 
-    loop Organizar Juego
-        AgenteMonitor->>AgenteRaton: CFP(Participar)
-        alt Acepta Participar
-            AgenteRaton-->>AgenteMonitor: Agree(Participar)
-            AgenteMonitor->>AgenteLaberinto: CFP(Organizar)
-            alt Acepta Organizar
-                AgenteLaberinto-->>AgenteMonitor: Agree(Organizar)
-                AgenteMonitor->>AgenteLaberinto: Propose(Crear Juego, AgenteRaton, AgenteLaberinto)
-                AgenteLaberinto-->>AgenteMonitor: Accept Proposal(Crear Juego)
-                AgenteLaberinto->>AgenteRaton: CFP(Iniciar Partida)
-                alt Inicia Partida
-                    AgenteRaton-->>AgenteLaberinto: Agree(Iniciar Partida)
-                    AgenteRaton->>AgenteLaberinto: Inform(Fin Partida)
-                    AgenteLaberinto-->>AgenteRaton: Agree(Fin Partida)
-                    AgenteLaberinto->>AgenteMonitor: Inform(Fin Juego)
-                    AgenteMonitor-->>AgenteLaberinto: Agree(Fin Juego)
-                else Rechaza Inicio Partida
-                    AgenteRaton-->>AgenteLaberinto: Refuse(Iniciar Partida)
-                end
-            else Rechaza Organizar
-                AgenteLaberinto-->>AgenteMonitor: Refuse(Organizar)
-            end
-        else Rechaza Participar
-            AgenteRaton-->>AgenteMonitor: Refuse(Participar)
+    AgenteMonitor->>AgenteRaton: propose(Juego, Dificultad)
+    Note right of AgenteMonitor: Propone un juego y dificultad al AgenteRaton
+    AgenteRaton->>AgenteMonitor: propose(aceptar) / propose(reject)
+    Note right of AgenteRaton: Acepta o rechaza la propuesta del juego
+    alt Juego aceptado
+        AgenteMonitor->>AgenteLaberinto: propose(Juego, Dificultad)
+        Note right of AgenteMonitor: Propone el juego aceptado al AgenteLaberinto
+        AgenteLaberinto->>AgenteMonitor: propose(aceptar) / propose(reject)
+        Note right of AgenteLaberinto: Acepta o rechaza la propuesta del juego
+        alt Juego aceptado
+            AgenteMonitor->>AgenteRaton: inform(Aceptado)
+            Note right of AgenteMonitor: Informa al AgenteRaton que el juego ha sido aceptado
+            AgenteMonitor->>AgenteLaberinto: inform(Aceptado)
+            Note right of AgenteMonitor: Informa al AgenteLaberinto que el juego ha sido aceptado
+        else Juego rechazado por el Laberinto
+            AgenteMonitor->>AgenteRaton: inform(Rechazado)
+            Note right of AgenteMonitor: Informa al AgenteRaton que el juego ha sido rechazado
         end
+    else Juego rechazado por el Raton
+        AgenteMonitor->>AgenteRaton: inform(Rechazado)
+        Note right of AgenteMonitor: Informa al AgenteRaton que el juego ha sido rechazado
     end
 ```
 
