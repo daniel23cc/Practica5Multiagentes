@@ -13,18 +13,18 @@ import java.util.Random;
 public class Constantes {
 
     public static Random aleatorio = new Random();
-
-    public enum ModoJuego {
-        BUSQUEDA, TORNEO, ELIMINATORIA;
-    }
-
-    public enum DificultadJuego {
-        BUSQUEDAD, FACIL, NORMAL, DIFICIL;
-    }
-
-    public enum NombreServicio { //hijo
-        CLIENTE, RESTAURANTE, COCINA, MONITOR
-    }
+//
+//    public enum ModoJuego {
+//        BUSQUEDA, TORNEO, ELIMINATORIA;
+//    }
+//
+//    public enum DificultadJuego {
+//        BUSQUEDAD, FACIL, NORMAL, DIFICIL;
+//    }
+//
+//    public enum NombreServicio { //hijo
+//        CLIENTE, RESTAURANTE, COCINA, MONITOR
+//    }
 
     public static int WIDTH_MIN;
     public static int WIDTH_MAX;

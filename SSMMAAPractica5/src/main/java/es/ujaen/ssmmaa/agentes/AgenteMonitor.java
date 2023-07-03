@@ -6,6 +6,7 @@
 package es.ujaen.ssmmaa.agentes;
 
 import es.ujaen.ssmmaa.gui.AgenteMonitorJFrame;
+import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.NombreServicio.ORGANIZADOR;
 import jade.core.Agent;
 import jade.core.MicroRuntime;
 import jade.domain.DFService;
@@ -18,7 +19,6 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static utils.Constantes.*;
-import static utils.Constantes.NombreServicio.MONITOR;
 
 /**
  *
@@ -51,7 +51,7 @@ public class AgenteMonitor extends Agent {
             template.setName(getAID());
             ServiceDescription templateSd = new ServiceDescription();
             templateSd.setType("SERVICIO");
-            templateSd.setName(MONITOR.name());
+            templateSd.setName(ORGANIZADOR.name());
             template.addServices(templateSd);
             try {
                 DFService.register(this, template);
