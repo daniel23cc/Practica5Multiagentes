@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>javieraranda.ssmmaapractica5</groupId>
+    <artifactId>SSMMAAPractica5</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <exec.mainClass>javieraranda.ssmmaapractica5.SSMMAAPractica5</exec.mainClass>
+    </properties>
+    <dependencies>
+        
+
+        <dependency> 
+            <groupId>com.tilab.jade</groupId> 
+            <artifactId>jade</artifactId> 
+            <version>4.5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>OntoMouse</groupId>
+            <artifactId>OntoMouse</artifactId>
+            <version>OntoMouse</version>
+        </dependency>
+    </dependencies>
+   
+</project>
