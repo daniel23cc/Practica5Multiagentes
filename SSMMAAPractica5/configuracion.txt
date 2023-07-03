@@ -1,0 +1,4 @@
+ARGUMENTOS: Numero de juegos, Numero de partidas por juego
+20 20 20 20 50 60 120
+RatoncitoPerez:es.ujaen.ssmmaa.agentes.AgenteRaton
+CrazyMaze:es.ujaen.ssmmaa.agentes.AgenteLaberinto

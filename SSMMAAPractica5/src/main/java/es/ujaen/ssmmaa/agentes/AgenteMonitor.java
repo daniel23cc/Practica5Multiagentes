@@ -7,8 +7,10 @@ package es.ujaen.ssmmaa.agentes;
 
 import es.ujaen.ssmmaa.gui.AgenteMonitorJFrame;
 import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.NombreServicio.ORGANIZADOR;
+import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.TIPO_SERVICIO;
 import jade.core.Agent;
 import jade.core.MicroRuntime;
+import jade.core.behaviours.OneShotBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
@@ -16,8 +18,10 @@ import jade.domain.FIPAException;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import tareas.TareaCrearAgentesMonitor;
 import static utils.Constantes.*;
 
 /**
@@ -25,10 +29,17 @@ import static utils.Constantes.*;
  * @author danie
  */
 public class AgenteMonitor extends Agent {
-    //Variables del agente
 
+    //Variables del agente
     AgenteMonitorJFrame myGui;
-    private String nombreFichero;
+
+    private ArrayList<String> arrayNombreAgentes;
+    private ArrayList<String> arrayNombreClientes;
+    private ArrayList<String> arrayClaseAgentes;
+    private ArrayList<ArrayList<String>> arrayArgumentos;
+
+    private String nombreAgente;
+    private String claseAgente;
 
     @Override
     protected void setup() {
@@ -41,6 +52,10 @@ public class AgenteMonitor extends Agent {
             //Inicialización de las variables del agente
             //archivo="configuracion.txt";
 
+            arrayNombreAgentes = new ArrayList<>();
+            arrayClaseAgentes = new ArrayList<>();
+            arrayArgumentos = new ArrayList<ArrayList<String>>();
+
             //Configuración del GUI
             myGui = new AgenteMonitorJFrame(this);
             myGui.setVisible(true);
@@ -50,7 +65,7 @@ public class AgenteMonitor extends Agent {
             DFAgentDescription template = new DFAgentDescription();
             template.setName(getAID());
             ServiceDescription templateSd = new ServiceDescription();
-            templateSd.setType("SERVICIO");
+            templateSd.setType(TIPO_SERVICIO);
             templateSd.setName(ORGANIZADOR.name());
             template.addServices(templateSd);
             try {
@@ -72,9 +87,10 @@ public class AgenteMonitor extends Agent {
         //if (args != null && args.length > 0) {
         // Lee el fichero de configuración
         //nombreFichero = (String) args[0];
-        
+
         myGui.presentarSalida("****LEYENDO ARCHIVO: " + NOMBRE_FICHERO + " **** \n");
         try (BufferedReader reader = new BufferedReader(new FileReader(NOMBRE_FICHERO))) {
+            reader.readLine();
             String linea = reader.readLine();
             String[] argumentos = linea.split(" ");
 
@@ -94,7 +110,59 @@ public class AgenteMonitor extends Agent {
             myGui.presentarSalida("MAX_QUESOS: " + argumentos[5]);
             myGui.presentarSalida("DURACION: " + argumentos[6]);
 
-            // Utiliza las variables ANCHO, ALTO, NUM_QUESOS y TIEMPO_PARTIDA como sea necesario
+            for (int i = 0; i < 2; i++) {
+                arrayArgumentos.add(new ArrayList());
+            }
+
+            while ((linea = reader.readLine()) != null) {
+                String[] nombYclas = linea.split(":");
+                nombreAgente = nombYclas[0];
+                claseAgente = nombYclas[1];
+
+                if (claseAgente.contains("Raton")) {
+                    for (int i = 0; i < argumentos.length; i++) {
+                        arrayArgumentos.get(0).add(argumentos[i]);
+                    }
+                } else {
+                    arrayArgumentos.get(1).add("NOSE");
+                }
+
+                arrayNombreAgentes.add(nombreAgente);
+                //System.out.println("Nombre: " + nombreAgente);
+                if (!arrayClaseAgentes.contains(claseAgente)) {
+                    arrayClaseAgentes.add(claseAgente);
+                }
+            }
+
+            System.out.println(arrayArgumentos.get(0));
+
+            myGui.presentarSalida("Agentes que se van a crear: \n");
+            for (int i = 0; i < arrayNombreAgentes.size(); i++) {
+                myGui.presentarSalida(arrayNombreAgentes.get(i) + "\n ");
+            }
+
+            myGui.presentarSalida("Clases Agentes que se van a crear: \n");
+            for (int i = 0; i < arrayClaseAgentes.size(); i++) {
+                myGui.presentarSalida(arrayClaseAgentes.get(i) + "\n ");
+            }
+
+            myGui.presentarSalida("\nArgumentos: \n");
+            for (int i = 0; i < arrayArgumentos.size(); i++) {
+                for (int j = 0; j < arrayArgumentos.get(i).size(); j++) {
+                    myGui.presentarSalida(arrayArgumentos.get(i).get(j) + "  ");
+                }
+                myGui.presentarSalida("\n");
+            }
+
+            arrayNombreClientes = new ArrayList<>();
+            for (int i = 0; i < arrayNombreAgentes.size(); i++) {
+                if (arrayNombreAgentes.get(i).contains("Cliente")) {
+                    arrayNombreClientes.add(arrayNombreAgentes.get(i));
+                }
+            }
+            addBehaviour(new TareaCrearAgentesMonitor(this));
+            //System.out.println("TAM: "+arrayNombreClientes.size());
+
         } catch (IOException ex) {
             System.err.println("Error al leer el fichero de configuración: " + ex.getMessage());
             throw new Exception();
@@ -119,4 +187,43 @@ public class AgenteMonitor extends Agent {
 
     //Métodos de trabajo del agente
     //Clases internas que representan las tareas del agente
+    public ArrayList<String> getArrayNombreAgentes() {
+        return arrayNombreAgentes;
+    }
+
+    public void setArrayNombreAgentes(ArrayList<String> arrayNombreAgentes) {
+        this.arrayNombreAgentes = arrayNombreAgentes;
+    }
+
+    public ArrayList<String> getArrayNombreClientes() {
+        return arrayNombreClientes;
+    }
+
+    public void setArrayNombreClientes(ArrayList<String> arrayNombreClientes) {
+        this.arrayNombreClientes = arrayNombreClientes;
+    }
+
+    public ArrayList<String> getArrayClaseAgentes() {
+        return arrayClaseAgentes;
+    }
+
+    public void setArrayClaseAgentes(ArrayList<String> arrayClaseAgentes) {
+        this.arrayClaseAgentes = arrayClaseAgentes;
+    }
+
+    public ArrayList<ArrayList<String>> getArrayArgumentos() {
+        return arrayArgumentos;
+    }
+
+    public void setArrayArgumentos(ArrayList<ArrayList<String>> arrayArgumentos) {
+        this.arrayArgumentos = arrayArgumentos;
+    }
+
+    public AgenteMonitorJFrame getMyGui() {
+        return myGui;
+    }
+
+    public void setMyGui(AgenteMonitorJFrame myGui) {
+        this.myGui = myGui;
+    }
 }
