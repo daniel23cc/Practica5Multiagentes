@@ -6,6 +6,7 @@
 package es.ujaen.ssmmaa.agentes;
 
 
+
 import es.ujaen.ssmmaa.ontomouserun.OntoMouseRun;
 import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.NombreServicio.JUGADOR;
 import jade.content.ContentManager;
@@ -24,12 +25,13 @@ import jade.util.leap.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import utils.ConstantesInterface;
+import static utils.ConstantesInterface.TIPO_SERVICIO;
 
 /**
  *
  * @author danie
  */
-public class AgenteRaton extends Agent implements ConstantesInterface {
+public class AgenteRaton extends Agent  {
     //Variables del agente
 
     //AgenteMonitorJFrame myGui;

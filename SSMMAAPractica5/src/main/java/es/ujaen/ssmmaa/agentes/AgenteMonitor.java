@@ -5,9 +5,10 @@
  */
 package es.ujaen.ssmmaa.agentes;
 
+
 import es.ujaen.ssmmaa.gui.AgenteMonitorJFrame;
 import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.NombreServicio.ORGANIZADOR;
-import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.TIPO_SERVICIO;
+
 import jade.core.Agent;
 import jade.core.MicroRuntime;
 import jade.core.behaviours.OneShotBehaviour;
@@ -23,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import tareas.TareaCrearAgentesMonitor;
 import static utils.Constantes.*;
+import static utils.ConstantesInterface.TIPO_SERVICIO;
 
 /**
  *

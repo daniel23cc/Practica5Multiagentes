@@ -24,11 +24,6 @@
             <artifactId>jade</artifactId> 
             <version>4.5.0</version>
         </dependency>
-        <dependency>
-            <groupId>OntoMouse</groupId>
-            <artifactId>OntoMouse</artifactId>
-            <version>OntoMouse</version>
-        </dependency>
     </dependencies>
     
     <repositories>
