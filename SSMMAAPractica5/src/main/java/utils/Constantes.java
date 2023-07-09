@@ -34,5 +34,8 @@ public class Constantes {
     public static int MAX_QUESOS;
     public static int DURACION;
     public static final String NOMBRE_FICHERO = "configuracion.txt";
+    public static int NUM_JUEGOS;
+    public static int NUM_PARTIDAS_JUEGO;
+    public static int NUM_RATONES;
 
 }

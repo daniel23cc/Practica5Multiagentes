@@ -15,9 +15,12 @@ import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.NOMBRE_SERVICIOS;
 import es.ujaen.ssmmaa.ontomouserun.Vocabulario.NombreServicio;
 import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.NombreServicio.JUGADOR;
 import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.NombreServicio.ORGANIZADOR;
+import es.ujaen.ssmmaa.ontomouserun.elementos.AgenteJuego;
 import es.ujaen.ssmmaa.ontomouserun.elementos.Juego;
 import es.ujaen.ssmmaa.ontomouserun.elementos.JuegoAceptado;
+import es.ujaen.ssmmaa.ontomouserun.elementos.Jugador;
 import es.ujaen.ssmmaa.ontomouserun.elementos.Justificacion;
+import es.ujaen.ssmmaa.ontomouserun.elementos.OrganizarJuego;
 import es.ujaen.ssmmaa.ontomouserun.elementos.ProponerJuego;
 import jade.content.ContentManager;
 import jade.content.lang.Codec;
@@ -44,10 +47,14 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.proto.ProposeInitiator;
 import jade.util.leap.Iterator;
+import jade.util.leap.List;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import tareas.TareaCrearAgentesMonitor;
@@ -82,6 +89,8 @@ public class AgenteMonitor extends Agent {
 
     private ArrayList<AID>[] listaAgentes;
 
+    private Map<Juego, List> ratonesEnJuego;
+
     private int idJuego;
 
     @Override
@@ -98,6 +107,7 @@ public class AgenteMonitor extends Agent {
             arrayNombreAgentes = new ArrayList<>();
             arrayClaseAgentes = new ArrayList<>();
             arrayArgumentos = new ArrayList<ArrayList<String>>();
+            ratonesEnJuego = new HashMap<>();
             idJuego = 0;
             //Configuración del GUI
             myGui = new AgenteMonitorJFrame(this);
@@ -127,7 +137,6 @@ public class AgenteMonitor extends Agent {
             manager.registerOntology(ontology);
 
             leerArchivo();
-            // addBehaviour(new TareaCrearAgentes());
             //Busco agentes jugadores
             // Se añaden las tareas principales
             DFAgentDescription template2 = new DFAgentDescription();
@@ -157,21 +166,25 @@ public class AgenteMonitor extends Agent {
             String linea = reader.readLine();
             String[] argumentos = linea.split(" ");
 
-            WIDTH_MIN = Integer.parseInt(argumentos[0]);
-            WIDTH_MAX = Integer.parseInt(argumentos[1]);
-            HEIGHT_MIN = Integer.parseInt(argumentos[2]);
-            HEIGHT_MAX = Integer.parseInt(argumentos[3]);
-            MIN_QUESOS = Integer.parseInt(argumentos[4]);
-            MAX_QUESOS = Integer.parseInt(argumentos[5]);
-            DURACION = Integer.parseInt(argumentos[6]);
+            NUM_JUEGOS = Integer.parseInt(argumentos[0]);
+            NUM_PARTIDAS_JUEGO = Integer.parseInt(argumentos[1]);
+            WIDTH_MIN = Integer.parseInt(argumentos[2]);
+            WIDTH_MAX = Integer.parseInt(argumentos[3]);
+            HEIGHT_MIN = Integer.parseInt(argumentos[4]);
+            HEIGHT_MAX = Integer.parseInt(argumentos[5]);
+            MIN_QUESOS = Integer.parseInt(argumentos[6]);
+            MAX_QUESOS = Integer.parseInt(argumentos[7]);
+            DURACION = Integer.parseInt(argumentos[8]);
 
-            myGui.presentarSalida("WIDTH_MIN: " + argumentos[0]);
-            myGui.presentarSalida("WIDTH_MAX: " + argumentos[1]);
-            myGui.presentarSalida("HEIGHT_MIN: " + argumentos[2]);
-            myGui.presentarSalida("HEIGHT_MAX: " + argumentos[3]);
-            myGui.presentarSalida("MIN_QUESOS: " + argumentos[4]);
-            myGui.presentarSalida("MAX_QUESOS: " + argumentos[5]);
-            myGui.presentarSalida("DURACION: " + argumentos[6]);
+            myGui.presentarSalida("NUM_JUEGOS: " + argumentos[0]);
+            myGui.presentarSalida("NUM_PARTIDAS_JUEGO: " + argumentos[1]);
+            myGui.presentarSalida("WIDTH_MIN: " + argumentos[2]);
+            myGui.presentarSalida("WIDTH_MAX: " + argumentos[3]);
+            myGui.presentarSalida("HEIGHT_MIN: " + argumentos[4]);
+            myGui.presentarSalida("HEIGHT_MAX: " + argumentos[5]);
+            myGui.presentarSalida("MIN_QUESOS: " + argumentos[6]);
+            myGui.presentarSalida("MAX_QUESOS: " + argumentos[7]);
+            myGui.presentarSalida("DURACION: " + argumentos[8]);
 
             for (int i = 0; i < 2; i++) {
                 arrayArgumentos.add(new ArrayList());
@@ -186,6 +199,7 @@ public class AgenteMonitor extends Agent {
                     for (int i = 0; i < argumentos.length; i++) {
                         arrayArgumentos.get(0).add(argumentos[i]);
                     }
+                    NUM_RATONES++;
                 } else {
                     arrayArgumentos.get(1).add("NOSE");
                 }
@@ -261,8 +275,8 @@ public class AgenteMonitor extends Agent {
             Juego nJuego = new Juego(String.valueOf(idJuego++), ModoJuego.BUSQUEDA);
             ProponerJuego nuevoJuego = new ProponerJuego(nJuego, DificultadJuego.BUSQUEDA);
             // Añadimos el contenido del mensaje
+            Action action = new Action(myAgent.getAID(), nuevoJuego);
             try {
-                Action action = new Action(myAgent.getAID(), nuevoJuego);
                 manager.fillContent(msg, action);
             } catch (Codec.CodecException | OntologyException ex) {
                 Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex);
@@ -275,7 +289,8 @@ public class AgenteMonitor extends Agent {
                 }
             }
 
-            addBehaviour(new TareaProponerJuegoInitiator(myAgent, msg));
+           // addBehaviour(new TareaProponerJuegoInitiator(myAgent, msg));
+
         }
 
     }
@@ -291,10 +306,34 @@ public class AgenteMonitor extends Agent {
         }
 
         @Override
+        protected void handleAllResponses(Vector responses) {
+            super.handleAllResponses(responses); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
         protected void handleAcceptProposal(ACLMessage accept_proposal) {
             try {
                 this.juegoAceptado = (JuegoAceptado) manager.extractContent(accept_proposal);
+                ratonesEnJuego.get(juegoAceptado.getJuego()).add(new Jugador(accept_proposal.getSender().getName(), accept_proposal.getSender()));
                 //addBehaviour(new TareaEnviarInforme(myAgent));
+
+                if (NUM_RATONES == ratonesEnJuego.get(juegoAceptado.getJuego()).size()) {
+                    ACLMessage msg = new ACLMessage(ACLMessage.PROPOSE);
+                    msg.setProtocol(FIPANames.InteractionProtocol.FIPA_PROPOSE);
+                    msg.setSender(getAID());
+                    msg.setLanguage(codec.getName());
+                    msg.setOntology(ontology.getName());
+                    OrganizarJuego nuevoOrganizarJuego = new OrganizarJuego(juegoAceptado.getJuego(), DificultadJuego.BUSQUEDA, ratonesEnJuego.get(juegoAceptado.getJuego()));
+
+                    // Añadimos el contenido del mensaje
+                    try {
+                        Action action = new Action(myAgent.getAID(), nuevoOrganizarJuego);
+                        manager.fillContent(msg, action);
+                    } catch (Codec.CodecException | OntologyException ex) {
+                        Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    addBehaviour(new TareaOrganizarJuegoInitiator(myAgent, msg));
+                }
             } catch (CodecException ex) {
                 try {
                     throw new NotUnderstoodException("No se puede decodificar el mensaje");
@@ -320,6 +359,15 @@ public class AgenteMonitor extends Agent {
             } catch (OntologyException ex) {
                 Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex);
             }
+        }
+
+    }
+
+    public class TareaOrganizarJuegoInitiator extends ProposeInitiator {
+
+        public TareaOrganizarJuegoInitiator(Agent a, ACLMessage msg) {
+            super(a, msg);
+            myGui.presentarSalida("Se va a organizar un juego: " + msg.getContent());
         }
 
     }
