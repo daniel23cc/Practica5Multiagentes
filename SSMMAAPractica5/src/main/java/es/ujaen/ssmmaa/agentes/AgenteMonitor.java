@@ -5,17 +5,45 @@
  */
 package es.ujaen.ssmmaa.agentes;
 
-
 import es.ujaen.ssmmaa.gui.AgenteMonitorJFrame;
+import es.ujaen.ssmmaa.ontomouserun.OntoMouseRun;
+import es.ujaen.ssmmaa.ontomouserun.Vocabulario;
+import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.DIFICULTAD_LABERINTOS;
+import es.ujaen.ssmmaa.ontomouserun.Vocabulario.DificultadJuego;
+import es.ujaen.ssmmaa.ontomouserun.Vocabulario.ModoJuego;
+import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.NOMBRE_SERVICIOS;
+import es.ujaen.ssmmaa.ontomouserun.Vocabulario.NombreServicio;
+import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.NombreServicio.JUGADOR;
 import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.NombreServicio.ORGANIZADOR;
+import es.ujaen.ssmmaa.ontomouserun.elementos.Juego;
+import es.ujaen.ssmmaa.ontomouserun.elementos.JuegoAceptado;
+import es.ujaen.ssmmaa.ontomouserun.elementos.Justificacion;
+import es.ujaen.ssmmaa.ontomouserun.elementos.ProponerJuego;
+import jade.content.ContentManager;
+import jade.content.lang.Codec;
+import jade.content.lang.Codec.CodecException;
+import jade.content.lang.sl.SLCodec;
+import jade.content.onto.BeanOntologyException;
+import jade.content.onto.Ontology;
+import jade.content.onto.OntologyException;
+import jade.content.onto.basic.Action;
+import jade.core.AID;
 
 import jade.core.Agent;
 import jade.core.MicroRuntime;
 import jade.core.behaviours.OneShotBehaviour;
+import jade.core.behaviours.TickerBehaviour;
 import jade.domain.DFService;
+import jade.domain.DFSubscriber;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.NotUnderstoodException;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
+import jade.domain.FIPANames;
+import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+import jade.proto.ProposeInitiator;
+import jade.util.leap.Iterator;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -23,6 +51,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import tareas.TareaCrearAgentesMonitor;
+import tareas.TareaProponerJuegoInitiator;
 import static utils.Constantes.*;
 import static utils.ConstantesInterface.TIPO_SERVICIO;
 
@@ -43,6 +72,18 @@ public class AgenteMonitor extends Agent {
     private String nombreAgente;
     private String claseAgente;
 
+    private final ContentManager manager = getContentManager();
+
+    // El lenguaje utilizado por el agente para la comunicación es SL 
+    private final Codec codec = new SLCodec();
+
+    // La ontología que utilizará el agente
+    private Ontology ontology;
+
+    private ArrayList<AID>[] listaAgentes;
+
+    private int idJuego;
+
     @Override
     protected void setup() {
         //Inicialización de las variables del agente
@@ -57,7 +98,7 @@ public class AgenteMonitor extends Agent {
             arrayNombreAgentes = new ArrayList<>();
             arrayClaseAgentes = new ArrayList<>();
             arrayArgumentos = new ArrayList<ArrayList<String>>();
-
+            idJuego = 0;
             //Configuración del GUI
             myGui = new AgenteMonitorJFrame(this);
             myGui.setVisible(true);
@@ -75,8 +116,28 @@ public class AgenteMonitor extends Agent {
             } catch (FIPAException fe) {
                 fe.printStackTrace();
             }
+
+            //Registro de la Ontología
+            try {
+                ontology = OntoMouseRun.getInstance();
+            } catch (BeanOntologyException ex) {
+                Logger.getLogger(AgenteRaton.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            manager.registerLanguage(codec);
+            manager.registerOntology(ontology);
+
             leerArchivo();
             // addBehaviour(new TareaCrearAgentes());
+            //Busco agentes jugadores
+            // Se añaden las tareas principales
+            DFAgentDescription template2 = new DFAgentDescription();
+            ServiceDescription templateSd2 = new ServiceDescription();
+            templateSd2.setType(TIPO_SERVICIO);
+            templateSd2.setName(JUGADOR.name());
+            template2.addServices(templateSd2);
+
+            addBehaviour(new TareaSuscripcionDF(this, template2));
+            addBehaviour(new TareaCrearMensajeProponerJuego());
         } catch (Exception ex) {
             Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -185,6 +246,154 @@ public class AgenteMonitor extends Agent {
         myGui.dispose();
         System.out.println("Finaliza la ejecución de " + this.getName());
         MicroRuntime.stopJADE();
+    }
+
+    public class TareaCrearMensajeProponerJuego extends OneShotBehaviour {
+
+        @Override
+        public void action() {
+            //To change body of generated methods, choose Tools | Templates.
+            ACLMessage msg = new ACLMessage(ACLMessage.PROPOSE);
+            msg.setProtocol(FIPANames.InteractionProtocol.FIPA_PROPOSE);
+            msg.setSender(getAID());
+            msg.setLanguage(codec.getName());
+            msg.setOntology(ontology.getName());
+            Juego nJuego = new Juego(String.valueOf(idJuego++), ModoJuego.BUSQUEDA);
+            ProponerJuego nuevoJuego = new ProponerJuego(nJuego, DificultadJuego.BUSQUEDA);
+            // Añadimos el contenido del mensaje
+            try {
+                Action action = new Action(myAgent.getAID(), nuevoJuego);
+                manager.fillContent(msg, action);
+            } catch (Codec.CodecException | OntologyException ex) {
+                Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            //indico los que van a recibir
+            if (listaAgentes[JUGADOR.ordinal()].size() > 0) {
+                for (AID jugador : listaAgentes[JUGADOR.ordinal()]) {
+                    msg.addReceiver(jugador);
+                }
+            }
+
+            addBehaviour(new TareaProponerJuegoInitiator(myAgent, msg));
+        }
+
+    }
+
+    public class TareaProponerJuegoInitiator extends ProposeInitiator {
+
+        private JuegoAceptado juegoAceptado;
+        private Justificacion justificcion;
+
+        public TareaProponerJuegoInitiator(Agent a, ACLMessage msg) {
+            super(a, msg);
+            myGui.presentarSalida("Se va a proponer un juego: " + msg.getContent());
+        }
+
+        @Override
+        protected void handleAcceptProposal(ACLMessage accept_proposal) {
+            try {
+                this.juegoAceptado = (JuegoAceptado) manager.extractContent(accept_proposal);
+                //addBehaviour(new TareaEnviarInforme(myAgent));
+            } catch (CodecException ex) {
+                try {
+                    throw new NotUnderstoodException("No se puede decodificar el mensaje");
+                } catch (NotUnderstoodException ex1) {
+                    Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex1);
+                }
+            } catch (OntologyException ex) {
+                Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        @Override
+        protected void handleRejectProposal(ACLMessage reject_proposal) {
+            try {
+                this.justificcion = (Justificacion) manager.extractContent(reject_proposal);
+                //addBehaviour(new TareaEnviarInforme(myAgent));
+            } catch (CodecException ex) {
+                try {
+                    throw new NotUnderstoodException("No se puede decodificar el mensaje");
+                } catch (NotUnderstoodException ex1) {
+                    Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex1);
+                }
+            } catch (OntologyException ex) {
+                Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+    }
+
+//    public class TareaEnviarInforme extends OneShotBehaviour {
+//
+//        private Juegi
+//        public TareaEnviarInforme(Agent a) {
+//            super(a);
+//        }
+//
+//        @Override
+//        public void action() {
+//            //To change body of generated methods, choose Tools | Templates.
+//            ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+//            msg.setSender(getAID());
+//            msg.setLanguage(codec.getName());
+//            msg.setOntology(ontology.getName());
+//            Juego nJuego = new Juego(String.valueOf(idJuego++), ModoJuego.BUSQUEDA);
+//            ProponerJuego nuevoJuego = new ProponerJuego(nJuego, DificultadJuego.BUSQUEDA);
+//            // Añadimos el contenido del mensaje
+//            try {
+//                Action action = new Action(myAgent.getAID(), nuevoJuego);
+//                manager.fillContent(msg, action);
+//            } catch (Codec.CodecException | OntologyException ex) {
+//                Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//
+//            //indico los que van a recibir
+//            if (listaAgentes[JUGADOR.ordinal()].size() > 0) {
+//                for (AID jugador : listaAgentes[JUGADOR.ordinal()]) {
+//                    msg.addReceiver(jugador);
+//                }
+//            }
+//
+//            addBehaviour(new TareaProponerJuegoInitiator(myAgent, msg));
+//        }
+//
+//    }
+    public class TareaSuscripcionDF extends DFSubscriber {
+
+        public TareaSuscripcionDF(Agent a, DFAgentDescription template) {
+            super(a, template);
+        }
+
+        @Override
+        public void onRegister(DFAgentDescription dfad) {
+            Iterator it = dfad.getAllServices();
+            while (it.hasNext()) {
+                ServiceDescription sd = (ServiceDescription) it.next();
+
+                for (NombreServicio nombreServicio : NOMBRE_SERVICIOS) {
+                    if (sd.getName().equals(nombreServicio.name())) {
+                        listaAgentes[nombreServicio.ordinal()].add(dfad.getName());
+                    }
+                }
+            }
+
+            myGui.presentarSalida("El agente: " + myAgent.getName()
+                    + "ha encontrado a:\n\t" + dfad.getName());
+        }
+
+        @Override
+        public void onDeregister(DFAgentDescription dfad) {
+            AID agente = dfad.getName();
+
+            for (NombreServicio servicio : NOMBRE_SERVICIOS) {
+                if (listaAgentes[servicio.ordinal()].remove(agente)) {
+                    myGui.presentarSalida("El agente: " + agente.getName()
+                            + " ha sido eliminado de la lista de "
+                            + myAgent.getName());
+                }
+            }
+        }
     }
 
     //Métodos de trabajo del agente
