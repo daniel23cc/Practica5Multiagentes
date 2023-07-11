@@ -7,21 +7,20 @@ package es.ujaen.ssmmaa.agentes;
 
 import es.ujaen.ssmmaa.gui.AgenteMonitorJFrame;
 import es.ujaen.ssmmaa.ontomouserun.OntoMouseRun;
-import es.ujaen.ssmmaa.ontomouserun.Vocabulario;
-import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.DIFICULTAD_LABERINTOS;
+
 import es.ujaen.ssmmaa.ontomouserun.Vocabulario.DificultadJuego;
 import es.ujaen.ssmmaa.ontomouserun.Vocabulario.ModoJuego;
 import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.NOMBRE_SERVICIOS;
 import es.ujaen.ssmmaa.ontomouserun.Vocabulario.NombreServicio;
 import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.NombreServicio.JUGADOR;
 import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.NombreServicio.ORGANIZADOR;
-import es.ujaen.ssmmaa.ontomouserun.elementos.AgenteJuego;
 import es.ujaen.ssmmaa.ontomouserun.elementos.Juego;
 import es.ujaen.ssmmaa.ontomouserun.elementos.JuegoAceptado;
 import es.ujaen.ssmmaa.ontomouserun.elementos.Jugador;
 import es.ujaen.ssmmaa.ontomouserun.elementos.Justificacion;
 import es.ujaen.ssmmaa.ontomouserun.elementos.OrganizarJuego;
 import es.ujaen.ssmmaa.ontomouserun.elementos.ProponerJuego;
+
 import jade.content.ContentManager;
 import jade.content.lang.Codec;
 import jade.content.lang.Codec.CodecException;
@@ -79,7 +78,7 @@ public class AgenteMonitor extends Agent {
     private String nombreAgente;
     private String claseAgente;
 
-    private final ContentManager manager = getContentManager();
+    private final ContentManager manager = (ContentManager) getContentManager();
 
     // El lenguaje utilizado por el agente para la comunicación es SL 
     private final Codec codec = new SLCodec();
@@ -113,8 +112,17 @@ public class AgenteMonitor extends Agent {
             myGui = new AgenteMonitorJFrame(this);
             myGui.setVisible(true);
             myGui.presentarSalida("Se inicializa la ejecución de " + this.getName() + "\n");
-            //Registro del agente en las Páginas Amarrillas
 
+            //Registro de la Ontología
+            try {
+                ontology = OntoMouseRun.getInstance();
+            } catch (BeanOntologyException ex) {
+                Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            manager.registerLanguage(codec);
+            manager.registerOntology(ontology);
+
+            //Registro del agente en las Páginas Amarrillas
             DFAgentDescription template = new DFAgentDescription();
             template.setName(getAID());
             ServiceDescription templateSd = new ServiceDescription();
@@ -127,26 +135,17 @@ public class AgenteMonitor extends Agent {
                 fe.printStackTrace();
             }
 
-            //Registro de la Ontología
-            try {
-                ontology = OntoMouseRun.getInstance();
-            } catch (BeanOntologyException ex) {
-                Logger.getLogger(AgenteRaton.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            manager.registerLanguage(codec);
-            manager.registerOntology(ontology);
-
-            leerArchivo();
-            //Busco agentes jugadores
-            // Se añaden las tareas principales
-            DFAgentDescription template2 = new DFAgentDescription();
-            ServiceDescription templateSd2 = new ServiceDescription();
-            templateSd2.setType(TIPO_SERVICIO);
-            templateSd2.setName(JUGADOR.name());
-            template2.addServices(templateSd2);
-
-            addBehaviour(new TareaSuscripcionDF(this, template2));
-            addBehaviour(new TareaCrearMensajeProponerJuego());
+//            leerArchivo();
+//            //Busco agentes jugadores
+//            // Se añaden las tareas principales
+//            DFAgentDescription template2 = new DFAgentDescription();
+//            ServiceDescription templateSd2 = new ServiceDescription();
+//            templateSd2.setType(TIPO_SERVICIO);
+//            templateSd2.setName(JUGADOR.name());
+//            template2.addServices(templateSd2);
+//
+//            addBehaviour(new TareaSuscripcionDF(this, template2));
+//            addBehaviour(new TareaCrearMensajeProponerJuego());
         } catch (Exception ex) {
             Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -289,7 +288,7 @@ public class AgenteMonitor extends Agent {
                 }
             }
 
-           // addBehaviour(new TareaProponerJuegoInitiator(myAgent, msg));
+            addBehaviour(new TareaProponerJuegoInitiator(myAgent, msg));
 
         }
 
