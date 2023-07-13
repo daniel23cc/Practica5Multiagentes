@@ -114,11 +114,9 @@ public class AgenteMonitor extends Agent {
             myGui.presentarSalida("Se inicializa la ejecución de " + this.getName() + "\n");
 
             //Registro de la Ontología
-            try {
+          
                 ontology = OntoMouseRun.getInstance();
-            } catch (BeanOntologyException ex) {
-                Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        
             manager.registerLanguage(codec);
             manager.registerOntology(ontology);
 
