@@ -5,6 +5,8 @@
  */
 package es.ujaen.ssmmaa.gui;
 
+import es.ujaen.ssmmaa.agentes.AgenteRaton;
+
 /**
  *
  * @author danie
@@ -19,8 +21,13 @@ public class AgenteRatonJFrame extends javax.swing.JFrame {
     private int numPartidasJugadasActualmentee = 0;
     private int numPartidasGanadass = 0;
 
-    public AgenteRatonJFrame() {
+    private AgenteRaton myAgent;
+
+    public AgenteRatonJFrame(AgenteRaton myAgent) {
         initComponents();
+        this.myAgent = myAgent;
+
+        this.setTitle(this.myAgent.getName());
     }
 
     /**
@@ -36,6 +43,9 @@ public class AgenteRatonJFrame extends javax.swing.JFrame {
         numPartidasJugadas = new javax.swing.JLabel();
         numPartidasJugadasActualmente = new javax.swing.JLabel();
         numPartidasGanadas = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        salidaTexto = new javax.swing.JTextArea();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -47,35 +57,68 @@ public class AgenteRatonJFrame extends javax.swing.JFrame {
 
         numPartidasGanadas.setText("jLabel1");
 
+        salidaTexto.setColumns(20);
+        salidaTexto.setRows(5);
+        jScrollPane1.setViewportView(salidaTexto);
+
+        jButton1.setText("jButton1");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(117, 117, 117)
+                .addGap(29, 29, 29)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(numPartidasGanadas)
                     .addComponent(numPartidasJugadasActualmente)
                     .addComponent(numPartidasJugadas)
                     .addComponent(numQuesos))
-                .addContainerGap(242, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(37, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton1)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(83, 83, 83)
-                .addComponent(numQuesos)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(numPartidasJugadas)
-                .addGap(31, 31, 31)
-                .addComponent(numPartidasJugadasActualmente)
-                .addGap(26, 26, 26)
-                .addComponent(numPartidasGanadas)
-                .addContainerGap(83, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(81, 81, 81)
+                        .addComponent(numQuesos)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(numPartidasJugadas)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(numPartidasJugadasActualmente)
+                        .addGap(18, 18, 18)
+                        .addComponent(numPartidasGanadas))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(31, 31, 31)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
+                .addComponent(jButton1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        myAgent.doDelete();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    public void presentarSalida(String msg) {
+        salidaTexto.append(msg + "\n");
+        System.out.println(msg);
+    }
 
     public void incrementCheese() {
         cheeseCount++;
@@ -99,9 +142,12 @@ public class AgenteRatonJFrame extends javax.swing.JFrame {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel numPartidasGanadas;
     private javax.swing.JLabel numPartidasJugadas;
     private javax.swing.JLabel numPartidasJugadasActualmente;
     private javax.swing.JLabel numQuesos;
+    private javax.swing.JTextArea salidaTexto;
     // End of variables declaration//GEN-END:variables
 }

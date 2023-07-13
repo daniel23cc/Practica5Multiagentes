@@ -39,13 +39,13 @@ public class TareaCrearAgentesMonitor extends OneShotBehaviour {
         Object[] arrAux;
 
         try {
-            arrAux = new Object[arrayArgumentos.get(1).size()];
-            for (int i = 0; i < arrayArgumentos.get(1).size(); i++) {
-                arrAux[i] = arrayArgumentos.get(1).get(i);
-            }
-            myGui.presentarSalida("\nCreando agente Laberinto...");
-            System.out.println("ARGS: " + arrayNombreAgentes.get(1) + "; " + arrayClaseAgentes.get(1) + " " + arrAux);
-            //MicroRuntime.startAgent(arrayNombreAgentes.get(1), arrayClaseAgentes.get(1), arrAux);
+//            arrAux = new Object[arrayArgumentos.get(1).size()];
+//            for (int i = 0; i < arrayArgumentos.get(1).size(); i++) {
+//                arrAux[i] = arrayArgumentos.get(1).get(i);
+//            }
+//            myGui.presentarSalida("\nCreando agente Laberinto...");
+//            System.out.println("ARGS: " + arrayNombreAgentes.get(1) + "; " + arrayClaseAgentes.get(1) + " " + arrAux);
+//            MicroRuntime.startAgent(arrayNombreAgentes.get(1), arrayClaseAgentes.get(1), arrAux);
 
             arrAux = new Object[arrayArgumentos.get(0).size()];
             for (int i = 0; i < arrayArgumentos.get(0).size(); i++) {

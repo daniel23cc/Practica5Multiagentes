@@ -12,8 +12,6 @@ import java.util.Random;
  */
 public interface ConstantesInterface {
 
-   
-
 //    public static final int WIDTH_MIN;
 //    public static int WIDTH_MAX;
 //    public static int HEIGHT_MIN;
@@ -31,9 +29,11 @@ public interface ConstantesInterface {
     public static int MAX_NUM_RATONES_DIFICIL = 12;
 
     public static final String NOMBRE_FICHERO = "configuracion.txt";
-    public static final String TIPO_SERVICIO = "SERVICIO"; //padre
 
-    
+    public static int DEMASIADOS_JUEGOS_SIN_COMPLETARR = 5;
+    public static int SUPERADO_LIMITE_PARTIDASS = 5;
+    public static int JUEGOS_ACTIVOS_SUPERADOSS = 5;
+    public static int PARTICIPACION_EN_JUEGOS_SUPERADAA = 5;
 
     public static Random aleatorio = new Random();
 

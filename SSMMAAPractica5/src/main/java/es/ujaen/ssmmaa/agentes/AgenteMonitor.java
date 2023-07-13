@@ -14,6 +14,7 @@ import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.NOMBRE_SERVICIOS;
 import es.ujaen.ssmmaa.ontomouserun.Vocabulario.NombreServicio;
 import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.NombreServicio.JUGADOR;
 import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.NombreServicio.ORGANIZADOR;
+import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.TIPO_SERVICIO;
 import es.ujaen.ssmmaa.ontomouserun.elementos.Juego;
 import es.ujaen.ssmmaa.ontomouserun.elementos.JuegoAceptado;
 import es.ujaen.ssmmaa.ontomouserun.elementos.Jugador;
@@ -35,6 +36,7 @@ import jade.core.Agent;
 import jade.core.MicroRuntime;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.TickerBehaviour;
+import jade.core.behaviours.WakerBehaviour;
 import jade.domain.DFService;
 import jade.domain.DFSubscriber;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
@@ -59,7 +61,6 @@ import java.util.logging.Logger;
 import tareas.TareaCrearAgentesMonitor;
 import tareas.TareaProponerJuegoInitiator;
 import static utils.Constantes.*;
-import static utils.ConstantesInterface.TIPO_SERVICIO;
 
 /**
  *
@@ -101,22 +102,26 @@ public class AgenteMonitor extends Agent {
         //Registro de la Ontología
         try {
             //Inicialización de las variables del agente
-            //archivo="configuracion.txt";
-
             arrayNombreAgentes = new ArrayList<>();
             arrayClaseAgentes = new ArrayList<>();
             arrayArgumentos = new ArrayList<ArrayList<String>>();
             ratonesEnJuego = new HashMap<>();
             idJuego = 0;
+
+            //creamos lista agentes
+            listaAgentes = new ArrayList[NOMBRE_SERVICIOS.length];
+            for (NombreServicio categoria : NOMBRE_SERVICIOS) {
+                listaAgentes[categoria.ordinal()] = new ArrayList<>();
+            }
+
             //Configuración del GUI
             myGui = new AgenteMonitorJFrame(this);
             myGui.setVisible(true);
             myGui.presentarSalida("Se inicializa la ejecución de " + this.getName() + "\n");
 
             //Registro de la Ontología
-          
-                ontology = OntoMouseRun.getInstance();
-        
+            ontology = OntoMouseRun.getInstance();
+
             manager.registerLanguage(codec);
             manager.registerOntology(ontology);
 
@@ -133,17 +138,17 @@ public class AgenteMonitor extends Agent {
                 fe.printStackTrace();
             }
 
-//            leerArchivo();
-//            //Busco agentes jugadores
-//            // Se añaden las tareas principales
-//            DFAgentDescription template2 = new DFAgentDescription();
-//            ServiceDescription templateSd2 = new ServiceDescription();
-//            templateSd2.setType(TIPO_SERVICIO);
-//            templateSd2.setName(JUGADOR.name());
-//            template2.addServices(templateSd2);
-//
-//            addBehaviour(new TareaSuscripcionDF(this, template2));
-//            addBehaviour(new TareaCrearMensajeProponerJuego());
+            leerArchivo();
+            //Busco agentes jugadores
+            // Se añaden las tareas principales
+            DFAgentDescription template2 = new DFAgentDescription();
+            ServiceDescription templateSd2 = new ServiceDescription();
+            templateSd2.setType(TIPO_SERVICIO);
+            templateSd2.setName(JUGADOR.name());
+            template2.addServices(templateSd2);
+
+            addBehaviour(new TareaSuscripcionDF(this, template2));
+            addBehaviour(new TareaCrearMensajeProponerJuego(this,2000));
         } catch (Exception ex) {
             Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -259,10 +264,14 @@ public class AgenteMonitor extends Agent {
         MicroRuntime.stopJADE();
     }
 
-    public class TareaCrearMensajeProponerJuego extends OneShotBehaviour {
+    public class TareaCrearMensajeProponerJuego extends WakerBehaviour {
+
+        public TareaCrearMensajeProponerJuego(Agent a, long timeout) {
+            super(a, timeout);
+        }
 
         @Override
-        public void action() {
+        public void onWake() {
             //To change body of generated methods, choose Tools | Templates.
             ACLMessage msg = new ACLMessage(ACLMessage.PROPOSE);
             msg.setProtocol(FIPANames.InteractionProtocol.FIPA_PROPOSE);
@@ -279,10 +288,12 @@ public class AgenteMonitor extends Agent {
                 Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex);
             }
 
-            //indico los que van a recibir
+            //indico los que van a recibir, en este caso los ratones
+            myGui.presentarSalida("Ratones encontrados: "+listaAgentes[JUGADOR.ordinal()].size());
             if (listaAgentes[JUGADOR.ordinal()].size() > 0) {
                 for (AID jugador : listaAgentes[JUGADOR.ordinal()]) {
                     msg.addReceiver(jugador);
+                    myGui.presentarSalida("Enviando propuesta de juego a: "+jugador.getLocalName());
                 }
             }
 
@@ -295,16 +306,11 @@ public class AgenteMonitor extends Agent {
     public class TareaProponerJuegoInitiator extends ProposeInitiator {
 
         private JuegoAceptado juegoAceptado;
-        private Justificacion justificcion;
+        private Justificacion justificacion;
 
         public TareaProponerJuegoInitiator(Agent a, ACLMessage msg) {
             super(a, msg);
             myGui.presentarSalida("Se va a proponer un juego: " + msg.getContent());
-        }
-
-        @Override
-        protected void handleAllResponses(Vector responses) {
-            super.handleAllResponses(responses); //To change body of generated methods, choose Tools | Templates.
         }
 
         @Override
@@ -329,6 +335,7 @@ public class AgenteMonitor extends Agent {
                     } catch (Codec.CodecException | OntologyException ex) {
                         Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex);
                     }
+                    //para el laberinto
                     addBehaviour(new TareaOrganizarJuegoInitiator(myAgent, msg));
                 }
             } catch (CodecException ex) {
@@ -345,7 +352,7 @@ public class AgenteMonitor extends Agent {
         @Override
         protected void handleRejectProposal(ACLMessage reject_proposal) {
             try {
-                this.justificcion = (Justificacion) manager.extractContent(reject_proposal);
+                this.justificacion = (Justificacion) manager.extractContent(reject_proposal);
                 //addBehaviour(new TareaEnviarInforme(myAgent));
             } catch (CodecException ex) {
                 try {
@@ -423,8 +430,8 @@ public class AgenteMonitor extends Agent {
                 }
             }
 
-            myGui.presentarSalida("El agente: " + myAgent.getName()
-                    + "ha encontrado a:\n\t" + dfad.getName());
+            myGui.presentarSalida("El agente: " + myAgent.getLocalName()
+                    + " ha encontrado a:\n\t" + dfad.getName());
         }
 
         @Override
@@ -433,9 +440,9 @@ public class AgenteMonitor extends Agent {
 
             for (NombreServicio servicio : NOMBRE_SERVICIOS) {
                 if (listaAgentes[servicio.ordinal()].remove(agente)) {
-                    myGui.presentarSalida("El agente: " + agente.getName()
+                    myGui.presentarSalida("El agente: " + agente.getLocalName()
                             + " ha sido eliminado de la lista de "
-                            + myAgent.getName());
+                            + myAgent.getLocalName());
                 }
             }
         }
