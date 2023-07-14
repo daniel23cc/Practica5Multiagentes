@@ -106,7 +106,7 @@ public final class GameSecurityManager
 			current = new GameSecurityManager();
 			if (GameConfig.INSTALL_SECURITY_MANAGER)
 			{
-				System.setSecurityManager(current);
+				//System.setSecurityManager(current);
 			}
 		}
 		

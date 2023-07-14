@@ -299,7 +299,7 @@ public class AgenteLaberinto extends Agent implements ConstantesInterface {
 //            arrAux[0] = organizarJuego;
             try {
                 //CREAMOS EL AGENTE PARTIDA Y LE PASAMOS LOS PRARMETROS
-                MicroRuntime.startAgent("Partida1", "es.ujaen.ssmmaa.agentes.AgentePartida", null);
+                MicroRuntime.startAgent("Partidaaa1", "es.ujaen.ssmmaa.agentes.AgentePartida", null);
             } catch (Exception ex) {
                 Logger.getLogger(AgenteLaberinto.class.getName()).log(Level.SEVERE, null, ex);
             }
