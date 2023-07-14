@@ -34,6 +34,8 @@ public interface ConstantesInterface {
     public static int SUPERADO_LIMITE_PARTIDASS = 5;
     public static int JUEGOS_ACTIVOS_SUPERADOSS = 5;
     public static int PARTICIPACION_EN_JUEGOS_SUPERADAA = 5;
+    
+    public static final int NUM_MAX_JUEGOS_LABERINTO=3;
 
     public static Random aleatorio = new Random();
 

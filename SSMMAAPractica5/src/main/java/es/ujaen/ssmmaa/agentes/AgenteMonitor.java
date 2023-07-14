@@ -130,7 +130,7 @@ public class AgenteMonitor extends Agent {
             template.setName(getAID());
             ServiceDescription templateSd = new ServiceDescription();
             templateSd.setType(TIPO_SERVICIO);
-            templateSd.setName(ORGANIZADOR.name());
+            templateSd.setName("Monitor");
             template.addServices(templateSd);
             try {
                 DFService.register(this, template);
@@ -144,7 +144,6 @@ public class AgenteMonitor extends Agent {
             DFAgentDescription template2 = new DFAgentDescription();
             ServiceDescription templateSd2 = new ServiceDescription();
             templateSd2.setType(TIPO_SERVICIO);
-            templateSd2.setName(JUGADOR.name());
             template2.addServices(templateSd2);
 
             addBehaviour(new TareaSuscripcionDF(this, template2));
@@ -346,6 +345,15 @@ public class AgenteMonitor extends Agent {
                         manager.fillContent(msg, action);
                     } catch (Codec.CodecException | OntologyException ex) {
                         Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
+                    //indico los que van a recibir, en este caso los ratones
+                    myGui.presentarSalida("Laberintos encontrados: " + listaAgentes[ORGANIZADOR.ordinal()].size());
+                    if (listaAgentes[ORGANIZADOR.ordinal()].size() > 0) {
+                        for (AID laberinto : listaAgentes[ORGANIZADOR.ordinal()]) {
+                            msg.addReceiver(laberinto);
+                            myGui.presentarSalida("Enviando organizacion de juego a: " + laberinto.getLocalName());
+                        }
                     }
                     //para el laberinto
                     addBehaviour(new TareaOrganizarJuegoInitiator(myAgent, msg));

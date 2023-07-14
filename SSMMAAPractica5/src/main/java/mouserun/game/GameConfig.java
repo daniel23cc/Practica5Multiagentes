@@ -26,7 +26,7 @@ public class GameConfig
 {
 
 	/** UI **/
-	public static final String GAME_TITLE				= "Mouse Run";
+	public static final String GAME_TITLE				= "MENUDO LABERINTO MAS GUAPO";
 	public static final int GRID_LENGTH					= 30;
 	public static final int MOUSE_CHEESE_DISPLAY_LENGTH	= 40;
 	public static final int COUNT_DOWN_FONT_SIZE			= 200;
@@ -36,10 +36,14 @@ public class GameConfig
 	public static final String ASSETS_BOMB				= "assets/bomb.png";
 	public static final String ASSETS_EXPLODED			= "assets/exploded.png";
 	public static final String ASSETS_CHEESE				= "assets/cheese.png";
-	public static final String ASSETS_MOUSEUP			= "assets/mouseup.png";
-	public static final String ASSETS_MOUSEDOWN			= "assets/mousedown.png";
-	public static final String ASSETS_MOUSELEFT			= "assets/mouseleft.png";
-	public static final String ASSETS_MOUSERIGHT			= "assets/mouseright.png";
+//	public static final String ASSETS_MOUSEUP			= "assets/mouseup.png";
+//	public static final String ASSETS_MOUSEDOWN			= "assets/mousedown.png";
+//	public static final String ASSETS_MOUSELEFT			= "assets/mouseleft.png";
+//	public static final String ASSETS_MOUSERIGHT			= "assets/mouseright.png";
+        public static final String ASSETS_MOUSEUP			= "assets/pedroJ.jpg";
+	public static final String ASSETS_MOUSEDOWN			= "assets/pedroJ.jpg";
+	public static final String ASSETS_MOUSELEFT			= "assets/pedroJ.jpg";
+	public static final String ASSETS_MOUSERIGHT			= "assets/pedroJ.jpg";
 	
 	/** Logic **/
 	public static final double RATIO_BOMBS_TO_CHEESE		= 0.1;

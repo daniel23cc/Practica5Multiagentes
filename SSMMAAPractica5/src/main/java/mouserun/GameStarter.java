@@ -28,7 +28,7 @@ import static utils.Constantes.*;
  */
 public class GameStarter {
 
-    public static void main(String... args) {
+    public static void main() {
         try {
 //			int width = Integer.parseInt(args[0]);
 //			int height = Integer.parseInt(args[1]);
@@ -39,15 +39,20 @@ public class GameStarter {
             int numberOfCheese = MIN_QUESOS + aleatorio.nextInt(MAX_QUESOS - MIN_QUESOS);
             int duration = DURACION;
 
+//            int width = 20;
+//            int height = 30;
+//            int numberOfCheese = 50;
+//            int duration = 120;
             if (width < 5 || height < 5 || numberOfCheese < 1) {
                 printHelp();
                 return;
             }
 
-            if (args.length == 4) {
-                duration = Integer.parseInt(args[3]);
-                System.out.println("Game will last for " + duration + " seconds");
-            }
+//            if (args.length == 4) {
+//                duration = Integer.parseInt(args[3]);
+//                System.out.println("Game will last for " + duration + " seconds");
+//            }
+            System.out.println("Game will last for " + duration + " seconds");
 
             GameSecurityManager.install();
             GameUI ui = new GameUI(width, height, numberOfCheese, duration);
