@@ -1,4 +1,4 @@
-ARGUMENTOS: Numero de participantes, Numero de partidas por juego
-1 1 20 20 20 20 50 60 120
+ARGUMENTOS: Numero de participantes, Numero de partidas por juego, MIN_ANCHO,MAX_ANCHO,MIN_ALTO,MAX_ALTO,MIN_QUESOS,MAX_QUESOS,DURACION
+1 1 20 20 30 30 50 60 120
 RatoncitoPerez:es.ujaen.ssmmaa.agentes.AgenteRaton
 CrazyMaze:es.ujaen.ssmmaa.agentes.AgenteLaberinto

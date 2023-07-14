@@ -34,9 +34,9 @@ public class GameStarter {
 //			int height = Integer.parseInt(args[1]);
 //			int numberOfCheese = Integer.parseInt(args[2]);
 //			int duration = 0;
-            int width = WIDTH_MIN + aleatorio.nextInt(WIDTH_MAX - WIDTH_MIN);
-            int height = HEIGHT_MIN + aleatorio.nextInt(HEIGHT_MAX - HEIGHT_MIN);
-            int numberOfCheese = MIN_QUESOS + aleatorio.nextInt(MAX_QUESOS - MIN_QUESOS);
+            int width = aleatorio.nextInt(WIDTH_MIN, WIDTH_MAX + 1);
+            int height = aleatorio.nextInt(HEIGHT_MIN, HEIGHT_MAX + 1);
+            int numberOfCheese = aleatorio.nextInt(MIN_QUESOS, MAX_QUESOS + 1);
             int duration = DURACION;
 
 //            int width = 20;

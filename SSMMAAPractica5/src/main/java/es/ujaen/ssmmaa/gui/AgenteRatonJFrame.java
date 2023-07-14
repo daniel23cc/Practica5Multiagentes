@@ -45,26 +45,26 @@ public class AgenteRatonJFrame extends javax.swing.JFrame {
         numPartidasGanadas = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         salidaTexto = new javax.swing.JTextArea();
-        jButton1 = new javax.swing.JButton();
+        FInalizar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        numQuesos.setText("jLabel1");
+        numQuesos.setText("numQuesos: 0");
 
-        numPartidasJugadas.setText("jLabel2");
+        numPartidasJugadas.setText("numPartidasJugadas: 0");
 
-        numPartidasJugadasActualmente.setText("jLabel1");
+        numPartidasJugadasActualmente.setText("numPartJugActualmente: 0");
 
-        numPartidasGanadas.setText("jLabel1");
+        numPartidasGanadas.setText("numPartidasGanadas: 0");
 
         salidaTexto.setColumns(20);
         salidaTexto.setRows(5);
         jScrollPane1.setViewportView(salidaTexto);
 
-        jButton1.setText("jButton1");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        FInalizar.setText("Finalizar");
+        FInalizar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                FInalizarActionPerformed(evt);
             }
         });
 
@@ -81,10 +81,10 @@ public class AgenteRatonJFrame extends javax.swing.JFrame {
                     .addComponent(numQuesos))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(37, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton1)
+                .addComponent(FInalizar)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -104,16 +104,16 @@ public class AgenteRatonJFrame extends javax.swing.JFrame {
                         .addGap(31, 31, 31)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
-                .addComponent(jButton1)
+                .addComponent(FInalizar)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void FInalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FInalizarActionPerformed
         myAgent.doDelete();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_FInalizarActionPerformed
 
     public void presentarSalida(String msg) {
         salidaTexto.append(msg + "\n");
@@ -142,7 +142,7 @@ public class AgenteRatonJFrame extends javax.swing.JFrame {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton FInalizar;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel numPartidasGanadas;
     private javax.swing.JLabel numPartidasJugadas;
