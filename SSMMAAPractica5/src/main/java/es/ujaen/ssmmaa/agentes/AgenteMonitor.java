@@ -148,7 +148,7 @@ public class AgenteMonitor extends Agent {
             template2.addServices(templateSd2);
 
             addBehaviour(new TareaSuscripcionDF(this, template2));
-            addBehaviour(new TareaCrearMensajeProponerJuego(this,2000));
+            addBehaviour(new TareaCrearMensajeProponerJuego(this, 1000));
         } catch (Exception ex) {
             Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -289,11 +289,11 @@ public class AgenteMonitor extends Agent {
             }
 
             //indico los que van a recibir, en este caso los ratones
-            myGui.presentarSalida("Ratones encontrados: "+listaAgentes[JUGADOR.ordinal()].size());
+            myGui.presentarSalida("Ratones encontrados: " + listaAgentes[JUGADOR.ordinal()].size());
             if (listaAgentes[JUGADOR.ordinal()].size() > 0) {
                 for (AID jugador : listaAgentes[JUGADOR.ordinal()]) {
                     msg.addReceiver(jugador);
-                    myGui.presentarSalida("Enviando propuesta de juego a: "+jugador.getLocalName());
+                    myGui.presentarSalida("Enviando propuesta de juego a: " + jugador.getLocalName());
                 }
             }
 
@@ -317,9 +317,21 @@ public class AgenteMonitor extends Agent {
         protected void handleAcceptProposal(ACLMessage accept_proposal) {
             try {
                 this.juegoAceptado = (JuegoAceptado) manager.extractContent(accept_proposal);
-                ratonesEnJuego.get(juegoAceptado.getJuego()).add(new Jugador(accept_proposal.getSender().getName(), accept_proposal.getSender()));
-                //addBehaviour(new TareaEnviarInforme(myAgent));
+                myGui.presentarSalida("<--- Recibida confirmacion de jugar por parte del raton " + accept_proposal.getSender());
+                // Verifica si ya existe una lista de jugadores asociada al juego
+                if (ratonesEnJuego.containsKey(juegoAceptado)) {
+                    // Si la lista ya existe, simplemente agrega los jugadores a la lista existente
+                    List jugadores = ratonesEnJuego.get(juegoAceptado);
+                    jugadores.add(juegoAceptado.getAgenteJuego());
+                } else {
+                    // Si la lista no existe, crea una nueva lista, agrega los jugadores y luego la asocia al juego en el mapa
+                    List jugadores = (List) new jade.util.leap.ArrayList();
+                    jugadores.add(juegoAceptado.getAgenteJuego());
+                    ratonesEnJuego.put(juegoAceptado.getJuego(), jugadores);
+                }
 
+                // ratonesEnJuego.get(juegoAceptado.getJuego()).add(new Jugador(accept_proposal.getSender().getName(), accept_proposal.getSender()));
+                //addBehaviour(new TareaEnviarInforme(myAgent));
                 if (NUM_RATONES == ratonesEnJuego.get(juegoAceptado.getJuego()).size()) {
                     ACLMessage msg = new ACLMessage(ACLMessage.PROPOSE);
                     msg.setProtocol(FIPANames.InteractionProtocol.FIPA_PROPOSE);
@@ -369,9 +381,46 @@ public class AgenteMonitor extends Agent {
 
     public class TareaOrganizarJuegoInitiator extends ProposeInitiator {
 
+        private JuegoAceptado juegoAceptado;
+        private Justificacion justificacion;
+
         public TareaOrganizarJuegoInitiator(Agent a, ACLMessage msg) {
             super(a, msg);
-            myGui.presentarSalida("Se va a organizar un juego: " + msg.getContent());
+            myGui.presentarSalida("--> Se va a organizar un juego: " + msg.getContent());
+        }
+
+        @Override
+        protected void handleAcceptProposal(ACLMessage accept_proposal) {
+            try {
+                this.juegoAceptado = (JuegoAceptado) manager.extractContent(accept_proposal);
+                myGui.presentarSalida("<--- Recibida confirmacion de jugar por parte del laberinto " + accept_proposal.getSender());
+                // Verifica si ya existe una lista de jugadores asociada al juego
+
+            } catch (CodecException ex) {
+                try {
+                    throw new NotUnderstoodException("No se puede decodificar el mensaje");
+                } catch (NotUnderstoodException ex1) {
+                    Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex1);
+                }
+            } catch (OntologyException ex) {
+                Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        @Override
+        protected void handleRejectProposal(ACLMessage reject_proposal) {
+            try {
+                this.justificacion = (Justificacion) manager.extractContent(reject_proposal);
+                //addBehaviour(new TareaEnviarInforme(myAgent));
+            } catch (CodecException ex) {
+                try {
+                    throw new NotUnderstoodException("No se puede decodificar el mensaje");
+                } catch (NotUnderstoodException ex1) {
+                    Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex1);
+                }
+            } catch (OntologyException ex) {
+                Logger.getLogger(AgenteMonitor.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
 
     }

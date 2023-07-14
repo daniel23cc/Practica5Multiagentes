@@ -19,6 +19,7 @@ import static es.ujaen.ssmmaa.ontomouserun.Vocabulario.TIPO_SERVICIO;
 import es.ujaen.ssmmaa.ontomouserun.elementos.AgenteJuego;
 import es.ujaen.ssmmaa.ontomouserun.elementos.Juego;
 import es.ujaen.ssmmaa.ontomouserun.elementos.JuegoAceptado;
+import es.ujaen.ssmmaa.ontomouserun.elementos.Jugador;
 import es.ujaen.ssmmaa.ontomouserun.elementos.Justificacion;
 import es.ujaen.ssmmaa.ontomouserun.elementos.ProponerJuego;
 import jade.content.ContentManager;
@@ -48,8 +49,6 @@ import java.util.logging.Logger;
 import utils.ConstantesInterface;
 import static utils.ConstantesInterface.JUEGOS_ACTIVOS_SUPERADOSS;
 import static utils.ConstantesInterface.PARTICIPACION_EN_JUEGOS_SUPERADAA;
-import utils.Raton;
-
 /**
  *
  * @author danie
@@ -71,7 +70,7 @@ public class AgenteRaton extends Agent {
     private int participacionJuegosSuperada;
     private int partidasJugando;
     private int juegosSinCompletar;
-    Raton rat=new Raton();
+    private Jugador jugador;
 
     @Override
     protected void setup() {
@@ -85,6 +84,7 @@ public class AgenteRaton extends Agent {
             participacionJuegosSuperada = 0;
             partidasJugando = 0;
             juegosSinCompletar = 0;
+            jugador=new Jugador(this.getLocalName(), this.getAID());
             listaAgentes = new ArrayList[NOMBRE_SERVICIOS.length];
             for (NombreServicio categoria : NOMBRE_SERVICIOS) {
                 listaAgentes[categoria.ordinal()] = new ArrayList<>();
@@ -152,7 +152,7 @@ public class AgenteRaton extends Agent {
 
         @Override
         protected ACLMessage prepareResponse(ACLMessage propose) throws NotUnderstoodException, RefuseException {
-            myGui.presentarSalida("Raton ha recibido solicitud de Monitor");
+            myGui.presentarSalida("<---"+ this.myAgent.getLocalName()+" ha recibido solicitud de Monitor");
 
             Action ac = null;
             ACLMessage respuesta = propose.createReply();
@@ -185,13 +185,11 @@ public class AgenteRaton extends Agent {
                 try {
                     // Rellenar el contenido del mensaje con JuegoAceptado
                     JuegoAceptado juegoAceptado = new JuegoAceptado();
-                    myGui.presentarSalida("Juego: "+proponerJuego.getJuego());
                     juegoAceptado.setJuego(proponerJuego.getJuego());
                     
-                    juegoAceptado.setAgenteJuego(rat);
+                    juegoAceptado.setAgenteJuego(jugador);
                     manager.fillContent(respuesta, juegoAceptado);
                     
-                    myGui.presentarSalida("SALIDAAAA: "+respuesta.getContent());
                 } catch (Codec.CodecException ex) {
                     Logger.getLogger(AgenteRaton.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (OntologyException ex) {
